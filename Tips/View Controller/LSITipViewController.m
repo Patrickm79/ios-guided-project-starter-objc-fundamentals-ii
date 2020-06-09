@@ -16,6 +16,7 @@
 
 // Private Properties
 @property (nonatomic) LSITip *currentTip;
+@property (nonatomic) double tipAmount;
 
 
 
@@ -43,23 +44,42 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    //TODO: move to init
+    self.currentTip = [[LSITip alloc] init];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
 }
 
 - (void)calculateTip
 {
-    // TODO: Calculate the tip using the values from the UI
+    self.currentTip.tipPercentage = round(self.percentageSlider.value);
+    self.currentTip.total = [self.totalTextField.text doubleValue];
+    self.currentTip.splitCount = self.splitStepper.value;
+    self.tipAmount = self.currentTip.total * (self.currentTip.tipPercentage / 100.0) / self.currentTip.splitCount;
+    [self updateViews];
 }
 
 - (void)updateViews
 {
-    // TODO: Use the model data to update the views
+    self.splitStepper.value = self.currentTip.splitCount;
+    self.percentageSlider.value = self.currentTip.tipPercentage;
+    self.totalTextField.text = [NSString stringWithFormat:@"%.2f", self.currentTip.total];
+    self.tipLabel.text = [NSString stringWithFormat:@"$%.2f", self.tipAmount];
+    self.splitLabel.text = [NSString stringWithFormat:@"%d", self.currentTip.splitCount];
+    // %% = % for output
+    self.percentageLabel.text = [NSString stringWithFormat:@"%0.0f%%", self.currentTip.tipPercentage];
+    [self.tableView reloadData];
 }
-
 - (void)saveTipNamed:(NSString *)name
 {
-    
-    // TODO: Save the tip to the controller and update tableview
-
+    // Create a copy of our current tip (FuTURE: implement copy)
+    LSITip *tip = [[LSITip alloc] initWithName:self.currentTip.name
+                                         total:self.currentTip.total
+                                 tipPercentage:self.currentTip.tipPercentage
+                                    splitCount:self.currentTip.splitCount];
+    [self.tipController addTip:tip];
+    // update views
+    [self updateViews];
 }
 
 // MARK: - IBActions
@@ -79,10 +99,8 @@
 - (IBAction)saveTipTapped:(UIButton *)sender
 {
     [self calculateTip];
+    [self showSaveTipAlert];
 }
-
-// TODO: Connect actions for splitChanged, sliderChanged, and Save Tip button
-
 
 // MARK: - UITableViewDataSource
 
