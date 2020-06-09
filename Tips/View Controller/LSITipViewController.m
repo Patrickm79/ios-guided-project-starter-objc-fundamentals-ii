@@ -7,16 +7,34 @@
 //
 
 #import "LSITipViewController.h"
+#import "LSITip.h"
+#import "LSITipController.h"
 
 // Objective-C: Class Extension (Different from Swift's extension)
 
 @interface LSITipViewController ()
 
 // Private Properties
+@property (nonatomic) LSITip *currentTip;
+
+
 
 // Private IBOutlets
+@property (strong, nonatomic) IBOutlet UITextField *totalTextField;
+@property (strong, nonatomic) IBOutlet UILabel *splitLabel;
+@property (strong, nonatomic) IBOutlet UILabel *tipLabel;
+@property (strong, nonatomic) IBOutlet UILabel *percentageLabel;
+@property (strong, nonatomic) IBOutlet UIStepper *splitStepper;
+@property (strong, nonatomic) IBOutlet UISlider *percentageSlider;
+@property (strong, nonatomic) IBOutlet UITableView *tableView;
 
 // Private Methods
+
+// Kind of a foward declaraction for methods/functions (required to do this in C)
+
+- (void)calculateTip;
+- (void)updateViews;
+- (void)saveTipNamed:(NSString *)name;
 
 @end
 
@@ -27,15 +45,18 @@
     
 }
 
-- (void)calculateTip {
+- (void)calculateTip
+{
     // TODO: Calculate the tip using the values from the UI
 }
 
-- (void)updateViews {
+- (void)updateViews
+{
     // TODO: Use the model data to update the views
 }
 
-- (void)saveTipNamed:(NSString *)name {
+- (void)saveTipNamed:(NSString *)name
+{
     
     // TODO: Save the tip to the controller and update tableview
 
@@ -43,6 +64,22 @@
 
 // MARK: - IBActions
 
+- (IBAction)updateSplit:(UIStepper *)sender
+{
+    self.currentTip.splitCount = round(self.splitStepper.value);
+    [self calculateTip];
+}
+
+- (IBAction)updatePercentage:(id)sender
+{
+    self.currentTip.tipPercentage = round(self.percentageSlider.value);
+    [self calculateTip];
+}
+
+- (IBAction)saveTipTapped:(UIButton *)sender
+{
+    [self calculateTip];
+}
 
 // TODO: Connect actions for splitChanged, sliderChanged, and Save Tip button
 
@@ -65,7 +102,8 @@
 
 // MARK: - Alert Helper
 
-- (void)showSaveTipAlert {
+- (void)showSaveTipAlert
+{
     UIAlertController *alert = [UIAlertController
                                 alertControllerWithTitle:@"Save Tip"
                                 message:@"What name would you like to give to this tip?"
